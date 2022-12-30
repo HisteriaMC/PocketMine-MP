@@ -406,7 +406,7 @@ class NetworkSession{
 			}
 		}
 
-		if (strlen($buffer) > 16500 && $packet->getName() === "InventoryTransactionPacket") {
+		if (strlen($buffer) > mt_rand(14000, 16000) && $packet->getName() === "InventoryTransactionPacket") {
 			$this->logger->debug("Huge InventoryTransactionPacket: " . base64_encode($buffer));
 			throw new PacketHandlingException("InventoryTransactionPacket too big");
 		}
