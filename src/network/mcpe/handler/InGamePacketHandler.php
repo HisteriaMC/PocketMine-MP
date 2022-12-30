@@ -264,17 +264,22 @@ class InGamePacketHandler extends PacketHandler{
 
 		$blockActions = $packet->getBlockActions();
 		if($blockActions !== null){
-			foreach($blockActions as $k => $blockAction){
-				$actionHandled = false;
-				if($blockAction instanceof PlayerBlockActionStopBreak){
-					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), new BlockPosition(0, 0, 0), Facing::DOWN);
-				}elseif($blockAction instanceof PlayerBlockActionWithBlockInfo){
-					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), $blockAction->getBlockPosition(), $blockAction->getFace());
-				}
+			if (count($blockActions) > 100) {
+				$this->session->getLogger()->debug("Too many block actions in PlayerAuthInputPacket, ignoring");
+				$packetHandled = false;
+			} else {
+				foreach($blockActions as $k => $blockAction){
+					$actionHandled = false;
+					if($blockAction instanceof PlayerBlockActionStopBreak){
+						$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), new BlockPosition(0, 0, 0), Facing::DOWN);
+					}elseif($blockAction instanceof PlayerBlockActionWithBlockInfo){
+						$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), $blockAction->getBlockPosition(), $blockAction->getFace());
+					}
 
-				if(!$actionHandled){
-					$packetHandled = false;
-					$this->session->getLogger()->debug("Unhandled player block action at offset $k in PlayerAuthInputPacket");
+					if(!$actionHandled){
+						$packetHandled = false;
+						$this->session->getLogger()->debug("Unhandled player block action at offset $k in PlayerAuthInputPacket");
+					}
 				}
 			}
 		}
