@@ -400,7 +400,7 @@ class NetworkSession{
 			$total = array_sum($this->packetLimits);
 			if ($total > 100) { //we already received at least 100 packets
 				$percentage = ($this->packetLimits[$packet->getName()] / $total) * 100;
-				if ($percentage > 40) { //if the packet represents more than 40% des packets
+				if ($percentage > 80) { //if the packet represents more than 80% des packets
 					$this->logger->info("Packet flood detected: " . $packet->getName() . " (" . $percentage . "% of ".$packet->getName().")");
 					$this->disconnect("Packet flood detected");
 					return;
