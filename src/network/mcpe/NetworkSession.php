@@ -179,6 +179,8 @@ class NetworkSession{
 	 */
 	private ObjectSet $disposeHooks;
 
+	private array $packetLimits = [];
+
 	public function __construct(
 		private Server $server,
 		private NetworkSessionManager $manager,
@@ -390,6 +392,18 @@ class NetworkSession{
 	public function handleDataPacket(Packet $packet, string $buffer) : void{
 		if(!($packet instanceof ServerboundPacket)){
 			throw new PacketHandlingException("Unexpected non-serverbound packet");
+		}
+		if (!isset($this->packetLimits[$packet->getName()])) $this->packetLimits[$packet->getName()] = 1;
+		else $this->packetLimits[$packet->getName()]++;
+
+		$total = array_sum($this->packetLimits);
+		if ($total > 20) { //we already received at least 20 packets
+			$percentage = ($this->packetLimits[$packet->getName()] / $total) * 100;
+			if ($percentage > 40) { //if the packet represents more than 40% des packets
+				$this->logger->info("Packet flood detected: " . $packet->getName() . " (" . $percentage . "% of ".$packet->getName().")");
+				$this->disconnect("Packet flood detected");
+				return;
+			}
 		}
 
 		if (strlen($buffer) > 16500 && $packet->getName() === "InventoryTransactionPacket") {
