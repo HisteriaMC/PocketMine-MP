@@ -392,6 +392,11 @@ class NetworkSession{
 			throw new PacketHandlingException("Unexpected non-serverbound packet");
 		}
 
+		if (strlen($buffer) > 16500 && $packet->getName() === "InventoryTransactionPacket") {
+			$this->logger->debug("Huge InventoryTransactionPacket: " . base64_encode($buffer));
+			throw new PacketHandlingException("InventoryTransactionPacket too big");
+		}
+
 		$timings = Timings::getDecodeDataPacketTimings($packet);
 		$timings->startTiming();
 		try{

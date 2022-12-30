@@ -338,7 +338,19 @@ class InGamePacketHandler extends PacketHandler{
 
 		$isCraftingPart = false;
 		$converter = TypeConverter::getInstance();
+		if(count($data->getActions()) > 50) {
+			$this->session->getLogger()->debug("Too much actions asked by the client (".count($data->getActions())."), ignoring");
+			return false;
+		}
 		foreach($data->getActions() as $networkInventoryAction){
+			if ($networkInventoryAction->oldItem->getItemStack()->getCount() > 99) {
+				$this->session->getLogger()->debug("Itemstack of olditem is too big (".$networkInventoryAction->oldItem->getItemStack()->getCount().")");
+				return false;
+			}
+			if ($networkInventoryAction->newItem->getItemStack()->getCount() > 99) {
+				$this->session->getLogger()->debug("Itemstack of newitem is too big (".$networkInventoryAction->newItem->getItemStack()->getCount().")");
+				return false;
+			}
 			if(
 				$networkInventoryAction->sourceType === NetworkInventoryAction::SOURCE_TODO || (
 					$this->craftingTransaction !== null &&
