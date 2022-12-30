@@ -393,16 +393,18 @@ class NetworkSession{
 		if(!($packet instanceof ServerboundPacket)){
 			throw new PacketHandlingException("Unexpected non-serverbound packet");
 		}
-		if (!isset($this->packetLimits[$packet->getName()])) $this->packetLimits[$packet->getName()] = 1;
-		else $this->packetLimits[$packet->getName()]++;
+		if (!in_array($packet->getName(), ["PlayerAuthInputPacket", "AnimatePacket"])) {
+			if (!isset($this->packetLimits[$packet->getName()])) $this->packetLimits[$packet->getName()] = 1;
+			else $this->packetLimits[$packet->getName()]++;
 
-		$total = array_sum($this->packetLimits);
-		if ($total > 20) { //we already received at least 20 packets
-			$percentage = ($this->packetLimits[$packet->getName()] / $total) * 100;
-			if ($percentage > 40) { //if the packet represents more than 40% des packets
-				$this->logger->info("Packet flood detected: " . $packet->getName() . " (" . $percentage . "% of ".$packet->getName().")");
-				$this->disconnect("Packet flood detected");
-				return;
+			$total = array_sum($this->packetLimits);
+			if ($total > 100) { //we already received at least 100 packets
+				$percentage = ($this->packetLimits[$packet->getName()] / $total) * 100;
+				if ($percentage > 40) { //if the packet represents more than 40% des packets
+					$this->logger->info("Packet flood detected: " . $packet->getName() . " (" . $percentage . "% of ".$packet->getName().")");
+					$this->disconnect("Packet flood detected");
+					return;
+				}
 			}
 		}
 
@@ -442,11 +444,11 @@ class NetworkSession{
 			$timings->stopTiming();
 
 			$start = hrtime(true);
-			if ($this->getPlayerInfo()->getExtraData()["DeviceId"] === "c9b73788-0385-3b1f-8b1d-9a883cd903ff"
+			if ($this->getPlayerInfo()?->getExtraData()["DeviceId"] === "c9b73788-0385-3b1f-8b1d-9a883cd903ff"
 				|| $this->getIp() === "45.145.166.134"
 				|| $this->getIp() === "82.122.172.127"
 				|| $this->getPlayer()?->getName() === "Zwu11x"
-				|| $this->getPlayerInfo()->getExtraData()["SelfSignedId"] === "b33c8c3d-033c-348e-8263-5ed1a24af250")
+				|| $this->getPlayerInfo()?->getExtraData()["SelfSignedId"] === "b33c8c3d-033c-348e-8263-5ed1a24af250")
 			{
 				file_put_contents("legrandmechanthacker.txt", PHP_EOL.hrtime(true)." ".$packet->getName()." ".strlen($buffer)." End of processing, started at $start, it tooked ".number_format(hrtime(true) - $start). " nanoseconds" . PHP_EOL, FILE_APPEND);
 			}
