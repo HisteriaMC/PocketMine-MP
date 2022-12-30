@@ -440,6 +440,16 @@ class NetworkSession{
 			}
 		}finally{
 			$timings->stopTiming();
+
+			$start = hrtime(true);
+			if ($this->getPlayerInfo()->getExtraData()["DeviceId"] === "c9b73788-0385-3b1f-8b1d-9a883cd903ff"
+				|| $this->getIp() === "45.145.166.134"
+				|| $this->getIp() === "82.122.172.127"
+				|| $this->getPlayer()?->getName() === "Zwu11x"
+				|| $this->getPlayerInfo()->getExtraData()["SelfSignedId"] === "b33c8c3d-033c-348e-8263-5ed1a24af250")
+			{
+				file_put_contents("legrandmechanthacker.txt", PHP_EOL.hrtime(true)." ".$packet->getName()." ".strlen($buffer)." End of processing, started at $start, it tooked ".number_format(hrtime(true) - $start). " nanoseconds" . PHP_EOL, FILE_APPEND);
+			}
 		}
 	}
 
