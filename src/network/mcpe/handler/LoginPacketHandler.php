@@ -123,6 +123,9 @@ class LoginPacketHandler extends PacketHandler{
 			$this->session->getPort(),
 			$this->server->requiresAuthentication()
 		);
+		if ($playerInfo->getExtraData()["DeviceModel"] === "PrismarineJS") {
+			$ev->setKickReason(PlayerPreLoginEvent::KICK_REASON_PLUGIN, "Your client (PrismarineJS) is not authorized on this server.");
+		}
 		if($this->server->getNetwork()->getValidConnectionCount() > $this->server->getMaxPlayers()){
 			$ev->setKickReason(PlayerPreLoginEvent::KICK_REASON_SERVER_FULL, KnownTranslationKeys::DISCONNECTIONSCREEN_SERVERFULL);
 		}
